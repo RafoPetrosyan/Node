@@ -10,9 +10,7 @@ import fileStore from 'session-file-store'
 import authorization from "./middlewares/authorization.js";
 
 const FileStore = fileStore(session);
-
 const debug = Debug('app:index');
-
 const app = express();
 
 // view engine setup
@@ -33,7 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.resolve('./public')));
 
-// app.use(authorization)
+app.use(authorization);
 
 app.use('/', indexRouter);
 
@@ -45,13 +43,14 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({
+    status: 'error',
+    message: err.message,
+    stack: err.stack,
+    errors: err.errors,
+  })
 });
 
 debug('hello')

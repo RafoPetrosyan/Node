@@ -1,20 +1,25 @@
-const EXCLUDE = [
-  '/users/login',
-  '/users/register'
-]
+import jwt from "jsonwebtoken";
+import HttpError from "http-errors";
+
+const EXCLUDE = ['/users/login', '/users/register'];
 
 export default function authorization(req, res, next) {
   try {
-    if (EXCLUDE.includes(req.path)) {
+    if(EXCLUDE.includes(req.path)) {
       next();
       return;
     }
-    if (!req.session.userEmail) {
-      res.redirect('/users/login');
-      return;
+
+    const {authorization = ''} = req.headers;
+    const data = jwt.verify(authorization.replace('Bearer ', ''), 'dsggeh564trfh');
+    if(!data.userEmail) {
+      throw HttpError(403);
     }
+    req.userEmail = data.userEmail;
     next();
+
   } catch (e) {
+    e.status = 403;
     next(e)
   }
 }

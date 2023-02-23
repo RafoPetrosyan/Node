@@ -1,48 +1,36 @@
 import md5 from "md5";
 import _ from "lodash";
+import jwt from 'jsonwebtoken';
 import Users from "../models/Users";
-import countriesJson from "../countries.json" assert { type: 'json' };
-
+import HttpError from "http-errors";
 
 class UsersController {
-
   static login = async (req, res, next) => {
     try {
-      res.render('users/login', { data: {}, error: '' })
-    } catch (e) {
-      next(e)
-    }
-  }
-  static loginPost = async (req, res, next) => {
-    try {
       const { email, password } = req.body;
-      const user = Users.get(email)
+      const user = Users.get(email);
 
       if (!user || !password || user.password !== md5(md5(password) + '324ertfcghv')) {
-        const error = 'Invalid email or password';
-        res.render('users/login', { data: {}, error })
-        return;
+        throw HttpError(401, 'invalid email or password');
       }
 
-
-      req.session.userEmail = email;
-      req.session.save(() => {
-        res.redirect(`/users?login=success`)
+      const token = jwt.sign({ userEmail: user.email }, 'dsggeh564trfh', {
+        expiresIn: '1h'
       });
+      delete user.password;
+
+      res.json({
+        status: 'ok',
+        token,
+        user,
+      })
+
     } catch (e) {
       next(e)
     }
   }
+
   static register = async (req, res, next) => {
-    try {
-      const errors = {};
-      const data = {};
-      res.render('users/register', { errors, data, countriesJson });
-    } catch (e) {
-      next(e)
-    }
-  }
-  static registerPost = async (req, res, next) => {
     try {
       const { firstName, lastName, email, password, countryId } = req.body;
       const errors = {};
@@ -58,37 +46,52 @@ class UsersController {
       if (!countryId) {
         errors.country = 'this is required';
       }
-      console.log(errors)
       if (!_.isEmpty(errors)) {
-        res.render('users/register', { errors: {}, data: req.body, countriesJson });
-        return;
+        throw HttpError(422, {
+          errors,
+        });
       }
 
       Users.create({
         firstName, lastName, email, password, countryId
       })
 
-      res.redirect(`/users?register=success&country=${countryId}`)
+      res.json({
+        status: 'ok',
+      })
+
     } catch (e) {
       next(e)
     }
   }
   static usersList = async (req, res, next) => {
     try {
-
-
-      const { register, page, country } = req.query;
+      const { page, country } = req.query;
       const users = Users.list(+page || 1, 20, country);
-      res.render('users/index', {
+      res.json({
+        status: 'ok',
         users,
-        register,
-        countriesJson,
-        selectedCountry: country,
       })
     } catch (e) {
       next(e)
     }
   };
+
+  static profile = async (req, res, next) => {
+
+    const {userEmail} = req;
+
+    try {
+      const user = Users.get(userEmail);
+      res.json({
+        status: 'ok',
+        user,
+      })
+    } catch (e) {
+      next(e)
+    }
+  };
+
   static filterPostedUsers = async (req, res, next) => {
     try {
       const { country } = req.body

@@ -1,15 +1,13 @@
 import { Router } from "express";
 
 import UsersController from "../controllers/UsersController";
-import authorization from "../middlewares/authorization.js";
 
 const router = Router();
 
-router.get('/login', UsersController.login)
-router.post('/login', UsersController.loginPost)
+router.post('/login', UsersController.login)
 
-router.get('/register', UsersController.register)
-router.post('/register', UsersController.registerPost)
+router.post('/register', UsersController.register)
+router.get('/profile', UsersController.profile)
 
 router.get('/', UsersController.usersList)
 router.get('/logout', UsersController.logOut)
