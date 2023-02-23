@@ -8,9 +8,9 @@ router.post('/login', UsersController.login)
 
 router.post('/register', UsersController.register)
 router.get('/profile', UsersController.profile)
+router.put('/update', UsersController.updateUser)
 
 router.get('/', UsersController.usersList)
-router.get('/logout', UsersController.logOut)
 
 
 export default router;

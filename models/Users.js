@@ -42,6 +42,25 @@ class Users {
 
   }
 
+  static update = (data = {}) => {
+    const { userEmail, firstName, lastName, email, countryId } = data;
+    const usersFile = path.join('./data/users', userEmail + '.json');
+    try {
+      const user = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
+
+      fs.writeFileSync(usersFile, JSON.stringify(
+        _.extend(user, {firstName, lastName, email, countryId})
+      , null, 2));
+
+      fs.renameSync(user, path.join('./data/users', email + '.json'));
+
+      delete data.userEmail;
+      return _.extend(user, data);
+    } catch (e) {
+      return null
+    }
+  }
+
 }
 
 export default Users;

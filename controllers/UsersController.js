@@ -92,20 +92,46 @@ class UsersController {
     }
   };
 
-  static filterPostedUsers = async (req, res, next) => {
+  static updateUser = async (req, res, next) => {
+    const {userEmail} = req;
+
     try {
-      const { country } = req.body
-      console.log('<<<<<<<<<req.body======>>>>>>>>>', req.body)
-      res.redirect(`/users?country=${country}`)
+      const { firstName, lastName, email, countryId } = req.body;
+      const errors = {};
+
+      if (!firstName) {
+        errors.firstName = 'First Name is Required';
+      }
+
+      if (!email) {
+        errors.email = 'Email is Required';
+      } else if (Users.get(email)) {
+        errors.email = 'Email already exists';
+      }
+      if (!countryId) {
+        errors.country = 'this is required';
+      }
+      if (!_.isEmpty(errors)) {
+        throw HttpError(422, {
+          errors,
+        });
+      }
+
+      const user = Users.update({userEmail, lastName, firstName, email});
+      delete user.password;
+      res.json({
+        status: 'ok',
+        user,
+      })
     } catch (e) {
       next(e)
     }
-  }
+  };
 
-  static logOut = async (req, res, next) => {
+  static filterPostedUsers = async (req, res, next) => {
     try {
-      req.session.destroy();
-      res.redirect(`/`);
+      const { country } = req.body
+      res.redirect(`/users?country=${country}`)
     } catch (e) {
       next(e)
     }
