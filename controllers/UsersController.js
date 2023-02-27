@@ -8,13 +8,13 @@ class UsersController {
   static login = async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      const user = await Users.getByEmail(email);
+      const user = await Users.auth(email, password);
 
-      if (!user || !password || user.password !== md5(md5(password) + '324ertfcghv')) {
+      if (!user) {
         throw HttpError(401, 'invalid email or password');
       }
 
-      const token = jwt.sign({ userEmail: user.email }, 'dsggeh564trfh', {
+      const token = jwt.sign({ userId: user.id }, 'dsggeh564trfh', {
         expiresIn: '1h'
       });
       delete user.password;
@@ -52,12 +52,13 @@ class UsersController {
         });
       }
 
-     await Users.create({
+     const user = await Users.create({
         firstName, lastName, email, password, countryId
       })
 
       res.json({
         status: 'ok',
+        user,
       })
 
     } catch (e) {
@@ -79,10 +80,10 @@ class UsersController {
 
   static profile = async (req, res, next) => {
 
-    const {userEmail} = req;
+    const {userId} = req;
 
     try {
-      const user = await Users.get(userEmail);
+      const user = await Users.get(userId);
       res.json({
         status: 'ok',
         user,
@@ -93,21 +94,21 @@ class UsersController {
   };
 
   static updateUser = async (req, res, next) => {
-    const {userEmail} = req;
-
     try {
-      const { firstName, lastName, email, countryId } = req.body;
+      const {userId} = req;
+      const user = await Users.get(userId);
+
+      if(!user) {
+        throw HttpError(404, 'User not found');
+      }
+
+      const { firstName, lastName, countryId, password } = req.body;
       const errors = {};
 
       if (!firstName) {
         errors.firstName = 'First Name is Required';
       }
 
-      if (!email) {
-        errors.email = 'Email is Required';
-      } else if (await Users.get(email)) {
-        errors.email = 'Email already exists';
-      }
       if (!countryId) {
         errors.country = 'this is required';
       }
@@ -117,8 +118,8 @@ class UsersController {
         });
       }
 
-      const user = Users.update({userEmail, lastName, firstName, email});
-      delete user.password;
+      await Users.update(userId, {firstName, lastName, countryId});
+
       res.json({
         status: 'ok',
         user,
@@ -128,15 +129,24 @@ class UsersController {
     }
   };
 
-  static filterPostedUsers = async (req, res, next) => {
+  static deleteUser = async (req, res, next) => {
     try {
-      const { country } = req.body
-      res.redirect(`/users?country=${country}`)
+      const {userId} = req;
+      const user = await Users.get(userId);
+
+      if(!user) {
+        throw HttpError(404, 'User not found');
+      }
+
+      await Users.delete(userId);
+
+      res.json({
+        status: 'ok'
+      })
     } catch (e) {
       next(e)
     }
-  }
-
+  };
 }
 
 export default UsersController;

@@ -10,8 +10,7 @@
   },
   "scripts": {
     "start": "nodemon --es-module-specifier-resolution=node ./bin/www.js",
-    "prod": "node --es-module-specifier-resolution=node ./bin/www.js",
-    "test": "node --es-module-specifier-resolution=node ./test.js"
+    "prod": "node --es-module-specifier-resolution=node ./bin/www.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

@@ -12,10 +12,9 @@ export default function authorization(req, res, next) {
 
     const {authorization = ''} = req.headers;
     const data = jwt.verify(authorization.replace('Bearer ', ''), 'dsggeh564trfh');
-    if(!data.userEmail) {
-      throw HttpError(403);
-    }
-    req.userEmail = data.userEmail;
+
+    if(!data.userId) throw HttpError(403);
+    req.userId = data.userId;
     next();
 
   } catch (e) {
