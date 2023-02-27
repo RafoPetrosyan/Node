@@ -8,7 +8,7 @@ class UsersController {
   static login = async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      const user = Users.get(email);
+      const user = await Users.getByEmail(email);
 
       if (!user || !password || user.password !== md5(md5(password) + '324ertfcghv')) {
         throw HttpError(401, 'invalid email or password');
@@ -40,7 +40,7 @@ class UsersController {
 
       if (!email) {
         errors.email = 'Email is Required';
-      } else if (Users.get(email)) {
+      } else if (await Users.getByEmail(email)) {
         errors.email = 'Email already exists';
       }
       if (!countryId) {
@@ -52,7 +52,7 @@ class UsersController {
         });
       }
 
-      Users.create({
+     await Users.create({
         firstName, lastName, email, password, countryId
       })
 
@@ -66,8 +66,8 @@ class UsersController {
   }
   static usersList = async (req, res, next) => {
     try {
-      const { page, country } = req.query;
-      const users = Users.list(+page || 1, 20, country);
+      const { page, countryId } = req.query;
+      const users = await Users.list(+page || 1, 20, countryId);
       res.json({
         status: 'ok',
         users,
@@ -82,7 +82,7 @@ class UsersController {
     const {userEmail} = req;
 
     try {
-      const user = Users.get(userEmail);
+      const user = await Users.get(userEmail);
       res.json({
         status: 'ok',
         user,
@@ -105,7 +105,7 @@ class UsersController {
 
       if (!email) {
         errors.email = 'Email is Required';
-      } else if (Users.get(email)) {
+      } else if (await Users.get(email)) {
         errors.email = 'Email already exists';
       }
       if (!countryId) {
