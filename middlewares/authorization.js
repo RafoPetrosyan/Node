@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import HttpError from "http-errors";
+const {JWT_SECRET} = process.env;
 
 const EXCLUDE = ['/users/login', '/users/register'];
 
@@ -11,7 +12,7 @@ export default function authorization(req, res, next) {
     }
 
     const {authorization = ''} = req.headers;
-    const data = jwt.verify(authorization.replace('Bearer ', ''), 'dsggeh564trfh');
+    const data = jwt.verify(authorization.replace('Bearer ', ''), JWT_SECRET);
 
     if(!data.userId) throw HttpError(403);
     req.userId = data.userId;

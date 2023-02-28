@@ -1,5 +1,6 @@
 import md5 from "md5";
 import db from "../services/db.js";
+const {PASSWORD_SECRET} = process.env;
 
 class Users {
   static get = async (id) => {
@@ -14,7 +15,7 @@ class Users {
   static create = async (params={}) => {
     const { firstName, lastName, email, password, countryId } = params;
     const [{insertId}] = await db.execute(`INSERT INTO users(firstName, lastName, email, password, countryId)
-        values(?, ?, ?, ?, ?)`, [firstName, lastName, email, md5(md5(password) + '324ertfcghv'), countryId]);
+        values(?, ?, ?, ?, ?)`, [firstName, lastName, email, md5(md5(password) + PASSWORD_SECRET), countryId]);
 
     return Users.get(insertId);
   }
@@ -45,7 +46,7 @@ class Users {
 
   static auth = async (email, password = '') => {
     const [results] = await db.execute(`SELECT * FROM USERS where email = ? AND password = ? limit 1`,
-        [email, md5(md5(password) + '324ertfcghv')]);
+        [email, md5(md5(password) + PASSWORD_SECRET)]);
 
     if(results[0]){
       delete results[0].password;

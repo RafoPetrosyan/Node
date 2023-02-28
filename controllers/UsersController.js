@@ -1,8 +1,8 @@
-import md5 from "md5";
 import _ from "lodash";
 import jwt from 'jsonwebtoken';
 import Users from "../models/Users";
 import HttpError from "http-errors";
+const {JWT_SECRET} = process.env;
 
 class UsersController {
   static login = async (req, res, next) => {
@@ -14,7 +14,7 @@ class UsersController {
         throw HttpError(401, 'invalid email or password');
       }
 
-      const token = jwt.sign({ userId: user.id }, 'dsggeh564trfh', {
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
         expiresIn: '1h'
       });
       delete user.password;
@@ -102,7 +102,7 @@ class UsersController {
         throw HttpError(404, 'User not found');
       }
 
-      const { firstName, lastName, countryId, password } = req.body;
+      const { firstName, lastName, countryId } = req.body;
       const errors = {};
 
       if (!firstName) {
