@@ -2,6 +2,7 @@ import _ from "lodash";
 import jwt from 'jsonwebtoken';
 import Users from "../models/Users";
 import HttpError from "http-errors";
+import Countries from "../models/Countries.js";
 const {JWT_SECRET} = process.env;
 
 class UsersController {
@@ -68,10 +69,19 @@ class UsersController {
   static usersList = async (req, res, next) => {
     try {
       const { page, countryId } = req.query;
-      const users = await Users.list(+page || 1, 20, countryId);
+      let users = await Users.list(+page || 1, 20, countryId);
+      const countyIds = _.uniq(users.map(u => u.countryId));
+
+      const countries = await Countries.getByIds(countyIds)
+
+      users = users.map((user) => {
+        user.country = countries.find(c => c.id === user.countryId)
+        return user;
+      });
       res.json({
         status: 'ok',
         users,
+        countries,
       })
     } catch (e) {
       next(e)
@@ -84,6 +94,11 @@ class UsersController {
 
     try {
       const user = await Users.get(userId);
+      if (!user) {
+        throw HttpError(404);
+      }
+      user.country = await Countries.get(user.countryId);
+
       res.json({
         status: 'ok',
         user,
