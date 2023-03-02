@@ -6,6 +6,7 @@ import logger from "morgan";
 import indexRouter from "./routes/index";
 import Debug from "debug";
 import authorization from "./middlewares/authorization.js";
+import cors from "./middlewares/cors.js";
 const debug = Debug('app:index');
 const app = express();
 
@@ -15,6 +16,7 @@ const app = express();
 
 app.set('trust proxy', 1) // trust first proxy
 
+app.use(cors)
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

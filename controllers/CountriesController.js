@@ -4,8 +4,8 @@ class CountriesController {
 
   static list = async (req, res, next) => {
     try {
-      const { s } = req.query;
-      const countries = await Countries.getAll(s);
+      const { search } = req.query;
+      const countries = await Countries.getAll(search);
 
       res.json({
         status: 'ok',

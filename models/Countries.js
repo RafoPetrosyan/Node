@@ -15,7 +15,7 @@ class Countries {
   }
 
   static async getAll(search = '') {
-    const [result] = await db.execute(`SELECT * FROM countries WHERE name like ? LIMIT 50`, [`%${search}%`])
+    const [result] = await db.execute(`SELECT * FROM countries WHERE country like ? LIMIT 50`, [`%${search}%`])
 
     return result
   }

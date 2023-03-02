@@ -110,37 +110,22 @@ class UsersController {
 
   static updateUser = async (req, res, next) => {
     try {
-      const {userId} = req;
-      const user = await Users.get(userId);
+      const { userId } = req;
+      const user = Users.get(userId);
 
-      if(!user) {
+      if (!user) {
         throw HttpError(404, 'User not found');
       }
 
       const { firstName, lastName, countryId } = req.body;
-      const errors = {};
 
-      if (!firstName) {
-        errors.firstName = 'First Name is Required';
-      }
-
-      if (!countryId) {
-        errors.country = 'this is required';
-      }
-      if (!_.isEmpty(errors)) {
-        throw HttpError(422, {
-          errors,
-        });
-      }
-
-      await Users.update(userId, {firstName, lastName, countryId});
+      await Users.update(userId, { firstName, lastName, countryId });
 
       res.json({
-        status: 'ok',
-        user,
-      })
+        status: 'ok'
+      });
     } catch (e) {
-      next(e)
+      next(e);
     }
   };
 

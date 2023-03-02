@@ -1,6 +1,5 @@
-import md5 from "md5";
 import db from "../services/db.js";
-const {PASSWORD_SECRET} = process.env;
+import {hashPassword} from "../helpers/index.js";
 
 class Users {
   static get = async (id) => {
@@ -15,7 +14,7 @@ class Users {
   static create = async (params={}) => {
     const { firstName, lastName, email, password, countryId } = params;
     const [{insertId}] = await db.execute(`INSERT INTO users(firstName, lastName, email, password, countryId)
-        values(?, ?, ?, ?, ?)`, [firstName, lastName, email, md5(md5(password) + PASSWORD_SECRET), countryId]);
+        values(?, ?, ?, ?, ?)`, [firstName, lastName, email, hashPassword(password), countryId]);
 
     return Users.get(insertId);
   }
@@ -23,10 +22,10 @@ class Users {
   static update = async (id, params={}) => {
     const { firstName, lastName, email, countryId } = params;
 
-    const res = await db.execute(`UPDATE users SET firstName = ? lastName = ? email = ? countryId = ? WHERE id = ?`,
+    const res = await db.execute(`UPDATE users SET firstName = ?, lastName = ?, email = ?, countryId = ? WHERE id = ?`,
         [firstName, lastName, email, countryId, id]);
 
-    console.log(res)
+    console.log(res);
   }
 
   static delete = async (id) => {
@@ -46,7 +45,7 @@ class Users {
 
   static auth = async (email, password = '') => {
     const [results] = await db.execute(`SELECT * FROM USERS where email = ? AND password = ? limit 1`,
-        [email, md5(md5(password) + PASSWORD_SECRET)]);
+        [email, hashPassword(password)]);
 
     if(results[0]){
       delete results[0].password;
@@ -59,6 +58,7 @@ class Users {
     limit = +limit || 20;
     const offset = (page - 1) * limit;
     const values = [];
+
     let query = 'SELECT * FROM USERS WHERE 1 = 1 ';
     if(countryId) {
       query += 'AND countryId = ? ';
