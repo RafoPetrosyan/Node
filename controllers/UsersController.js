@@ -68,20 +68,21 @@ class UsersController {
   }
   static usersList = async (req, res, next) => {
     try {
-      const { page, countryId } = req.query;
-      let users = await Users.list(+page || 1, 20, countryId);
-      const countyIds = _.uniq(users.map(u => u.countryId));
+      const { page, countryId, limit } = req.query;
+      let users = await Users.list(+page || 1,  +limit || 20, countryId);
 
-      const countries = await Countries.getByIds(countyIds)
+      // const countyIds = _.uniq(users.map(u => u.countryId));
 
-      users = users.map((user) => {
-        user.country = countries.find(c => c.id === user.countryId)
-        return user;
-      });
+      // const countries = await Countries.getByIds(countyIds)
+
+      // users = users.map((user) => {
+      //   user.country = countries.find(c => c.id === user.countryId)
+      //   return user;
+      // });
       res.json({
         status: 'ok',
         users,
-        countries,
+        // countries,
       })
     } catch (e) {
       next(e)
@@ -97,7 +98,7 @@ class UsersController {
       if (!user) {
         throw HttpError(404);
       }
-      user.country = await Countries.get(user.countryId);
+      user.location = await Countries.get(user.cityId);
 
       res.json({
         status: 'ok',

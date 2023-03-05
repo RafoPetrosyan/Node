@@ -2,7 +2,8 @@ import db from "../services/db.js";
 
 class Countries {
   static async get(id) {
-    const [result] = await db.execute('SELECT * FROM countries WHERE id = ?', [id])
+    const [result] = await db.execute(`select ct.*, c.country as countryName from cities ct
+        inner join countries c on ct.id = ? and ct.country_id = c.id`, [id])
 
     return result[0]
   }

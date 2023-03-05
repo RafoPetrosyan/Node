@@ -58,12 +58,21 @@ class Users {
     limit = +limit || 20;
     const offset = (page - 1) * limit;
     const values = [];
+    let joinType = 'left';
 
-    let query = 'SELECT * FROM USERS WHERE 1 = 1 ';
     if(countryId) {
-      query += 'AND countryId = ? ';
+      joinType = 'inner';
       values.push(countryId)
     }
+
+    let query = `select u.*, ct.city as city, ct.id as cityId, ct.country_id as countryId, c.country as country from users u
+        left join cities ct on u.cityId = ct.id
+        ${joinType} join countries c on ct.country_id = c.id `;
+
+    if(countryId) {
+      query += 'AND ct.country_id = ? ';
+    }
+
     query += `LIMIT ${limit} OFFSET ${offset}`;
     const [results] = await db.execute(query, values);
 
