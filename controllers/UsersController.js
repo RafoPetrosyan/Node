@@ -68,17 +68,17 @@ class UsersController {
   }
   static usersList = async (req, res, next) => {
     try {
-      const { page, countryId, limit } = req.query;
-      let users = await Users.list(+page || 1,  +limit || 20, countryId);
+      const { page = 1, cityId, limit = 20 } = req.query;
 
-      // const countyIds = _.uniq(users.map(u => u.countryId));
+      const users = await Users.findAll({
+        where: {
+           firstName : 'LIKE P%'
+        },
+        limit: +limit,
+        offset: +(+page - 1) * +limit,
+        logging: true,
+      });
 
-      // const countries = await Countries.getByIds(countyIds)
-
-      // users = users.map((user) => {
-      //   user.country = countries.find(c => c.id === user.countryId)
-      //   return user;
-      // });
       res.json({
         status: 'ok',
         users,
