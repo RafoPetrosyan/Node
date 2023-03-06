@@ -1,6 +1,7 @@
 import {DataTypes, Model} from "sequelize";
 import sequelize from "../services/sequelize.js";
 import {hashPassword} from "../helpers/index.js";
+import Cities from "./Cities.js";
 
 class Users extends Model {
 
@@ -38,15 +39,31 @@ Users.init({
       return undefined;
     }
   },
-  cityId: {
-    type: DataTypes.INTEGER.UNSIGNED,
-    allowNull: true,
-  },
+  // cityId: {
+  //   type: DataTypes.INTEGER.UNSIGNED,
+  //   allowNull: true,
+  // },
 }, {
   timestamps: false,
   sequelize,
   tableName: 'users',
   modelName: 'users',
+});
+
+
+Users.belongsTo(Cities, {
+  foreignKey: 'cityId',
+  as: 'city'
+})
+
+Cities.hasMany(Users, {
+  foreignKey: 'cityId',
+  as: 'users',
+})
+
+Cities.hasOne(Users, {
+  foreignKey: 'cityId',
+  as: 'user',
 })
 
 export default Users;

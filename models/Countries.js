@@ -1,25 +1,25 @@
-import db from "../services/db.js";
+import {DataTypes, Model} from "sequelize";
+import sequelize from "../services/sequelize.js";
 
-class Countries {
-  static async get(id) {
-    const [result] = await db.execute(`select ct.*, c.country as countryName from cities ct
-        inner join countries c on ct.id = ? and ct.country_id = c.id`, [id])
+class Countries extends Model {
 
-    return result[0]
-  }
-
-  static async getByIds(ids = []) {
-    const q = ids.map(() => '?').join(',')
-    const [result] = await db.execute(`SELECT * FROM countries WHERE id in(${q})`, [...ids])
-
-    return result
-  }
-
-  static async getAll(search = '') {
-    const [result] = await db.execute(`SELECT * FROM countries WHERE country like ? LIMIT 50`, [`%${search}%`])
-
-    return result
-  }
 }
+
+Countries.init({
+  id: {
+    type: DataTypes.BIGINT.UNSIGNED,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+  },
+}, {
+  timestamps: false,
+  sequelize,
+  tableName: 'countries',
+  modelName: 'countries',
+});
 
 export default Countries;

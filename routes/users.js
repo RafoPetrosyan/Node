@@ -8,6 +8,6 @@ router.post('/register', UsersController.register)
 router.get('/', UsersController.usersList)
 router.get('/profile', UsersController.profile)
 router.delete('/profile', UsersController.deleteUser)
-router.put('/update', UsersController.updateUser)
+router.put('/profile', UsersController.updateUser)
 
 export default router;
