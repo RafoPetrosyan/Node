@@ -39,7 +39,7 @@ Cities.belongsTo(Countries, {
 
 Countries.hasMany(Cities, {
   foreignKey: 'country_id',
-  as: 'users',
+  as: 'cities',
 })
 
 export default Cities;
