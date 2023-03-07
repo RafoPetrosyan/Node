@@ -78,9 +78,12 @@ class UsersController {
       next(e)
     }
   }
+
   static usersList = async (req, res, next) => {
     try {
-      const { page = 1, cityId, search, limit = 20 } = req.query;
+      let { page = 1, cityId, search, limit } = req.query;
+      limit = +limit || 20;
+      page = +page || 1;
 
       const where = {};
       if(search) {
@@ -89,6 +92,12 @@ class UsersController {
           {lastName : {$like: `%${search}%`}},
           {email : {$like: `%${search}%`}},
         ]
+      }
+
+      if(cityId) {
+        where.$and = {
+          cityId,
+        }
       }
 
       const users = await Users.findAll({
@@ -106,8 +115,8 @@ class UsersController {
           },
         ],
         // order: [['firstName', 'asc'], ['email', 'desc']],
-        limit: +limit,
-        offset: +(+page - 1) * +limit,
+        limit: limit,
+        offset: (page - 1) * limit,
         logging: true,
       });
 
@@ -132,15 +141,30 @@ class UsersController {
   };
 
   static profile = async (req, res, next) => {
-
     const {userId} = req;
 
     try {
-      const user = await Users.get(userId);
+      const user = await Users.findOne({
+        where: {
+          id: userId
+        },
+        include: [
+          {
+            model: Cities,
+            required: false,
+            as: 'city',
+            include: [{
+              model: Countries,
+              required: false,
+              as: 'country',
+            }],
+          },
+        ],
+      });
       if (!user) {
         throw HttpError(404);
       }
-      user.location = await Countries.get(user.cityId);
+      // user.location = await Countries.get(user.cityId);
 
       res.json({
         status: 'ok',
