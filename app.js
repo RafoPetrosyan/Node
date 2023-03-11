@@ -15,11 +15,10 @@ const app = express();
 // app.set('view engine', 'ejs');
 
 app.set('trust proxy', 1) // trust first proxy
-
 app.use(cors)
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.resolve('./public')));
 

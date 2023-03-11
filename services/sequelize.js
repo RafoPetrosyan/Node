@@ -1,5 +1,4 @@
 import {Op, Sequelize} from "sequelize";
-
 const {MSQL_HOST, MSQL_PORT, MSQL_USER, MSQL_PASSWORD, MSQL_DATABASE} = process.env;
 
 const operatorsAliases = {

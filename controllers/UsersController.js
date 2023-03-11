@@ -1,8 +1,7 @@
-import _ from "lodash";
 import jwt from 'jsonwebtoken';
 import {Users, Cities, Countries} from "../models";
 import HttpError from "http-errors";
-import {hashPassword} from "../helpers/index.js";
+import validate from "../services/validate.js";
 const {JWT_SECRET} = process.env;
 
 class UsersController {
@@ -13,9 +12,11 @@ class UsersController {
       const user = await Users.findOne({
         where: {
           email,
-          password: hashPassword(password),
-        }
+          password: Users.hashPassword(password),
+        },
       });
+
+      console.log(user, 888)
 
       if (!user) {
         throw HttpError(401, 'invalid email or password');
@@ -39,22 +40,21 @@ class UsersController {
   static register = async (req, res, next) => {
     try {
       const { firstName, lastName, email, password, cityId } = req.body;
-      const errors = {};
-      if (!firstName) {
-        errors.firstName = 'First Name is Required';
-      }
 
-      if (!email) {
-        errors.email = 'Email is Required';
-      } else if (await Users.findOne({where: {email}})) {
-        errors.email = 'Email already exists';
-      }
-      if (!cityId) {
-        errors.city = 'this is required';
-      }
-      if (!_.isEmpty(errors)) {
+      validate(req.body, {
+        firstName: 'required|alpha',
+        lastName: 'required|alpha',
+        email: 'required|email',
+        password: 'required|min:3',
+        cityId: 'numeric',
+        'images.*': 'numeric',
+      });
+
+      if (await Users.findOne({where: {email}})) {
         throw HttpError(422, {
-          errors,
+          errors: {
+            email: ['Email already exits'],
+          }
         });
       }
 
@@ -102,6 +102,8 @@ class UsersController {
 
       const users = await Users.findAll({
         where,
+        // raw: true,
+        // nest: true,
         include: [
           {
             model: Cities,
@@ -120,8 +122,9 @@ class UsersController {
         logging: true,
       });
 
-      const ct = await Cities.findAll({
+      const ct = await Cities.count({
         where: {id: 1},
+        distinct: true,
         include: [{
           model: Users,
           required: false,

@@ -1,10 +1,11 @@
 import {DataTypes, Model} from "sequelize";
 import sequelize from "../services/sequelize.js";
-import {hashPassword} from "../helpers/index.js";
 import Cities from "./Cities.js";
+import md5 from "md5";
+const {PASSWORD_SECRET} = process.env;
 
 class Users extends Model {
-
+  static hashPassword = (password) => md5(md5(password) + PASSWORD_SECRET);
 }
 
 Users.init({
@@ -32,7 +33,7 @@ Users.init({
     allowNull: false,
     set(password) {
       if(password) {
-        this.setDataValue('password', hashPassword(password));
+        this.setDataValue('password', Users.hashPassword(password));
       }
     },
     get() {
