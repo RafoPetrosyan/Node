@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import {Users, Cities, Countries} from "../models";
 import HttpError from "http-errors";
 import validate from "../services/validate.js";
+import Joi from "joi";
 const {JWT_SECRET} = process.env;
 
 class UsersController {
@@ -39,16 +40,24 @@ class UsersController {
 
   static register = async (req, res, next) => {
     try {
-      const { firstName, lastName, email, password, cityId } = req.body;
+      // validate(req.body, {
+      //   firstName: 'required|alpha',
+      //   lastName: 'required|alpha',
+      //   email: 'required|email',
+      //   password: 'required|min:3',
+      //   cityId: 'numeric',
+      //   'images.*': 'numeric',
+      // });
 
-      validate(req.body, {
-        firstName: 'required|alpha',
-        lastName: 'required|alpha',
-        email: 'required|email',
-        password: 'required|min:3',
-        cityId: 'numeric',
-        'images.*': 'numeric',
-      });
+    const registerSchema = Joi.object({
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(4).max(10).required(),
+      cityId: Joi.number().required(),
+    })
+
+      const { firstName, lastName, email, password, cityId } = req.body;
 
       if (await Users.findOne({where: {email}})) {
         throw HttpError(422, {

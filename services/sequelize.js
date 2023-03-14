@@ -38,9 +38,9 @@ const operatorsAliases = {
 }
 
 const sequelize = new Sequelize(MSQL_DATABASE, MSQL_USER, MSQL_PASSWORD, {
+    dialect: 'mysql',
     host: MSQL_HOST,
     port: MSQL_PORT,
-    dialect: 'mysql',
     operatorsAliases,
 });
 

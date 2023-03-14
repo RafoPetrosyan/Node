@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken'
 import HttpError from "http-errors";
-
 const { JWT_SECRET } = process.env;
 
 const EXCLUDE = [
   'POST:/users/login',
   'POST:/users/register',
   'GET:/countries',
+  'GET:/candidates',
+  'POST:/people/passport-check',
 ]
 
 export default function authorization(req, res, next) {
