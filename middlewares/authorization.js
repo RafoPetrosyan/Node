@@ -8,6 +8,7 @@ const EXCLUDE = [
   'GET:/countries',
   'GET:/candidates',
   'POST:/people/passport-check',
+  'POST:/people/vote',
 ]
 
 export default function authorization(req, res, next) {
