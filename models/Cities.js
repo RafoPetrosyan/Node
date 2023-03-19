@@ -18,7 +18,7 @@ Cities.init({
   //   allowNull: false,
   // },
   country_id: {
-    type: DataTypes.SMALLINT.UNSIGNED,
+    type: DataTypes.BIGINT.UNSIGNED,
     allowNull: false,
   },
   name: {

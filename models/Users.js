@@ -40,10 +40,10 @@ Users.init({
       return undefined;
     }
   },
-  // cityId: {
-  //   type: DataTypes.INTEGER.UNSIGNED,
-  //   allowNull: true,
-  // },
+  avatar: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: false,
   sequelize,
